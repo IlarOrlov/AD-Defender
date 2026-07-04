@@ -131,7 +131,7 @@ function Get-EventField {
 #region ---------------------------------------------------------- Detections: Core
 #region ---------------------------------------------------------- Detections
 
-# 1) Account and Group Enumeration -> 4798 / 4799
+# Account and Group Enumeration -> 4798 / 4799
 function Test-AccountGroupEnumeration {
     param([string]$Computer, [datetime]$Since)
     $events = Get-SafeWinEvent -ComputerName $Computer -LogName 'Security' -Id 4798,4799 -StartTime $Since
@@ -150,7 +150,7 @@ function Test-AccountGroupEnumeration {
         }
 }
 
-# 2) AdminSDHolder abuse -> 4780
+# AdminSDHolder abuse -> 4780
 function Test-AdminSDHolderAbuse {
     param([string]$Computer, [datetime]$Since)
     $events = Get-SafeWinEvent -ComputerName $Computer -LogName 'Security' -Id 4780 -StartTime $Since
@@ -163,7 +163,7 @@ function Test-AdminSDHolderAbuse {
     }
 }
 
-# 3) Kekeo-style ticket abuse (admin token granted alongside a TGS request but no matching interactive logon)
+# Kekeo-style ticket abuse (admin token granted alongside a TGS request but no matching interactive logon)
 function Test-KekeoPattern {
     param([string]$Computer, [datetime]$Since)
     $tgs   = Get-SafeWinEvent -ComputerName $Computer -LogName 'Security' -Id 4768 -StartTime $Since
@@ -189,7 +189,7 @@ function Test-KekeoPattern {
     }
 }
 
-# 4) Silver Ticket (service ticket used without a corresponding TGT/logon chain, admin rights granted)
+# Silver Ticket (service ticket used without a corresponding TGT/logon chain, admin rights granted)
 function Test-SilverTicket {
     param([string]$Computer, [datetime]$Since)
     $logon  = Get-SafeWinEvent -ComputerName $Computer -LogName 'Security' -Id 4624 -StartTime $Since
@@ -216,7 +216,7 @@ function Test-SilverTicket {
     }
 }
 
-# 5) Golden Ticket (admin logon with no corresponding krbtgt-issued TGT on this host)
+# Golden Ticket (admin logon with no corresponding krbtgt-issued TGT on this host)
 function Test-GoldenTicket {
     param([string]$Computer, [datetime]$Since)
     $logon = Get-SafeWinEvent -ComputerName $Computer -LogName 'Security' -Id 4624 -StartTime $Since
@@ -239,7 +239,7 @@ function Test-GoldenTicket {
     }
 }
 
-# 6) Suspicious PowerShell (script block / module logging)
+# Suspicious PowerShell (script block / module logging)
 # NOTE: 4103/4104 (script block + module logging) live in the modern
 # "Microsoft-Windows-PowerShell/Operational" channel. 400/403 (Engine Lifecycle)
 # and 600 (Provider Lifecycle) live in the CLASSIC "Windows PowerShell" log - a
@@ -283,7 +283,7 @@ function Test-SuspiciousPowerShell {
     }
 }
 
-# 7) DCShadow (rogue DC registration / replication metadata manipulation)
+# DCShadow (rogue DC registration / replication metadata manipulation)
 function Test-DCShadow {
     param([string]$Computer, [datetime]$Since)
     $compChange = Get-SafeWinEvent -ComputerName $Computer -LogName 'Security' -Id 4742 -StartTime $Since
@@ -303,7 +303,7 @@ function Test-DCShadow {
     }
 }
 
-# 8) Skeleton Key (lsass patched to accept a universal password)
+# Skeleton Key (lsass patched to accept a universal password)
 function Test-SkeletonKey {
     param([string]$Computer, [datetime]$Since)
     $priv    = Get-SafeWinEvent -ComputerName $Computer -LogName 'Security' -Id 4673 -StartTime $Since
@@ -345,7 +345,7 @@ function Test-SkeletonKey {
     }
 }
 
-# 9) PYKEK / MS14-068 (forged PAC - admin rights that don't line up with a legitimate group path)
+# PYKEK / MS14-068 (forged PAC - admin rights that don't line up with a legitimate group path)
 function Test-MS14068 {
     param([string]$Computer, [datetime]$Since)
     $tgs   = Get-SafeWinEvent -ComputerName $Computer -LogName 'Security' -Id 4768 -StartTime $Since
@@ -372,7 +372,7 @@ function Test-MS14068 {
     }
 }
 
-# 10) Kerberoasting (bulk TGS requests, especially RC4/etype 0x17, for service accounts)
+# Kerberoasting (bulk TGS requests, especially RC4/etype 0x17, for service accounts)
 function Test-Kerberoasting {
     param([string]$Computer, [datetime]$Since)
     $tgs = Get-SafeWinEvent -ComputerName $Computer -LogName 'Security' -Id 4769 -StartTime $Since
@@ -392,7 +392,7 @@ function Test-Kerberoasting {
         }
 }
 
-# 11) S4U2Proxy abuse (constrained/resource-based delegation misuse)
+# S4U2Proxy abuse (constrained/resource-based delegation misuse)
 function Test-S4U2Proxy {
     param([string]$Computer, [datetime]$Since)
     $tgs = Get-SafeWinEvent -ComputerName $Computer -LogName 'Security' -Id 4769 -StartTime $Since
@@ -408,7 +408,7 @@ function Test-S4U2Proxy {
     }
 }
 
-# 12) Lateral Movement (same account, many destination hosts, in a short window)
+# Lateral Movement (same account, many destination hosts, in a short window)
 # Spec calls for 4624 (success), 4625 (failure), 4688 (process created), 4689
 # (process exited). Successes/process-creation drive the "confirmed hop" alert;
 # failures across many hosts for one account are surfaced as a separate,
@@ -457,7 +457,7 @@ function Test-LateralMovement {
     }
 }
 
-# 13) DNSAdmin -> arbitrary DLL load on DC via ServerLevelPluginDll
+# DNSAdmin -> arbitrary DLL load on DC via ServerLevelPluginDll
 function Get-DnsAdminMessage {
     param($EventId)
     switch ($EventId) {
@@ -477,7 +477,7 @@ function Test-DnsAdminAbuse {
     }
 }
 
-# 14) DCSync (replication rights used from a non-DC to pull password hashes)
+# DCSync (replication rights used from a non-DC to pull password hashes)
 function Test-DCSync {
     param([string]$Computer, [datetime]$Since)
     $events = Get-SafeWinEvent -ComputerName $Computer -LogName 'Security' -Id 4662 -StartTime $Since
@@ -497,7 +497,7 @@ function Test-DCSync {
     }
 }
 
-# 15) Password Spraying (many distinct accounts failing from one source in a short window)
+# Password Spraying (many distinct accounts failing from one source in a short window)
 function Test-PasswordSpray {
     param([string]$Computer, [datetime]$Since)
     $fail     = Get-SafeWinEvent -ComputerName $Computer -LogName 'Security' -Id 4625 -StartTime $Since
